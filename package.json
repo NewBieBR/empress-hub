@@ -1,0 +1,40 @@
+{
+  "name": "empress-hub",
+  "version": "0.0.1",
+  "description": "CLI",
+  "scripts": {
+    "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "create": "npm run build && npm run test",
+    "build": "tsc -p .",
+    "test": "sudo npm i -g && empress-hub",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "postinstall": "empress-hub setup"
+  },
+  "main": "./lib/index.js",
+  "bin": {
+    "empress-hub": "./lib/index.js"
+  },
+  "keywords": [
+    "Typescript"
+  ],
+  "author": "Hung Arthur Dao",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "clear": "^0.1.0",
+    "commander": "^4.1.1",
+    "figlet": "^1.2.4",
+    "lodash": "^4.17.15",
+    "path": "^0.12.7",
+    "prompts": "^2.3.0",
+    "shelljs": "^0.8.3",
+    "trnc": "^0.0.5",
+    "yesno": "^0.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^13.7.0",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
+  }
+}
