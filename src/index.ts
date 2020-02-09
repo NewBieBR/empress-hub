@@ -15,7 +15,7 @@ import { EmpressConfig, EmpressLocalConfig } from './types';
 
 const CONFIG_DIR_PATH = `${homedir}/.empress-hub`;
 const CONFIG_FILE_PATH = `${CONFIG_DIR_PATH}/config.json`;
-const LOCAL_CONFIG_DIR_NAME = '.empress-hub';
+const LOCAL_CONFIG_DIR_NAME = '.empress-hub-local';
 const LOCAL_CONFIG_FILE_NAME = `${LOCAL_CONFIG_DIR_NAME}/config.json`;
 
 clear();
@@ -46,7 +46,9 @@ function getLocalConfigFilePath(dirPath: string): string | null {
   return filePath;
 }
 
-function getLocalConfig(dir: string = __dirname): EmpressLocalConfig | null {
+function getLocalConfig(
+  dir: string = process.cwd(),
+): EmpressLocalConfig | null {
   const configFilePath = getLocalConfigFilePath(dir);
   try {
     if (configFilePath === null) {
@@ -71,7 +73,7 @@ async function setLocalConfig(
     ...currentConfig,
     ...newConfig,
     filesToPush: _.uniq(
-      currentConfig.filesToPush.concat(newConfig.filesToPush || []),
+      (currentConfig.filesToPush || []).concat(newConfig.filesToPush || []),
     ),
   };
   fs.writeFile(localConfigFilePath, JSON.stringify(config), (e: any) => {
@@ -138,7 +140,7 @@ program
   .command('init <remotePath>')
   .description('Inititialize directory')
   .action(async remotePath => {
-    const dir = __dirname;
+    const dir = process.cwd();
     const configFilePath = getLocalConfigFilePath(dir);
     if (configFilePath !== null) {
       console.log(
@@ -151,13 +153,14 @@ program
     );
     const config: Partial<EmpressLocalConfig> = { remotePath, filesToPush: [] };
     setLocalConfig(`${dir}/${LOCAL_CONFIG_FILE_NAME}`, config);
+    console.log(chalk.green('Initialized at ' + dir));
   });
 
 program
   .command('setRemotePath <remotePath>')
   .description('Reset directory remote path')
   .action(async remotePath => {
-    const dir = __dirname;
+    const dir = process.cwd();
     const configFilePath = getLocalConfigFilePath(dir);
     if (configFilePath === null) {
       console.log(
@@ -174,7 +177,7 @@ program
   .description('Add files to be push')
   .action(async (file, otherFiles) => {
     const filesToPush = [file].concat(otherFiles);
-    const configFilePath = getLocalConfigFilePath(__dirname);
+    const configFilePath = getLocalConfigFilePath(process.cwd());
     if (!configFilePath) {
       console.log(
         chalk.red('Directory not initalized. Run empress-hub init first'),
@@ -188,7 +191,7 @@ program
   .command('push')
   .description('Push added files to empress')
   .action(async () => {
-    const configFilePath = getLocalConfigFilePath(__dirname);
+    const configFilePath = getLocalConfigFilePath(process.cwd());
     if (!configFilePath) {
       console.log(
         chalk.red('Directory not initalized. Run empress-hub init first'),
@@ -216,7 +219,7 @@ program
     }
     let remoteDirPath = globalConfig.sshHost + ':' + localConfig.remotePath;
     cmd += ' ' + remoteDirPath;
-    console.log(cmd);
+    console.log(chalk.yellwo(cmd));
     shell.exec(cmd);
     // TODO handle push from subdirectory of initialied directory
   });

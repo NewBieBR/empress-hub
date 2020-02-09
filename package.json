@@ -1,6 +1,6 @@
 {
   "name": "empress-hub",
-  "version": "0.0.3",
+  "version": "0.0.10",
   "description": "CLI",
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
@@ -8,7 +8,7 @@
     "build": "tsc -p .",
     "test": "sudo npm i -g && empress-hub",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "postinstall": "empress-hub setup"
+    "prepare": "yarn build"
   },
   "main": "./lib/index.js",
   "bin": {
