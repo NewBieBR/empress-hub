@@ -1,6 +1,6 @@
 {
   "name": "empress-hub",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CLI",
   "scripts": {
     "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",

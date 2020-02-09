@@ -34,7 +34,6 @@ function setConfig(newConfig: Partial<EmpressConfig>) {
 function getLocalConfigFilePath(dirPath: string): string | null {
   let dir = dirPath;
   let filePath = path.resolve(dir, LOCAL_CONFIG_FILE_NAME);
-  console.log('getLocalConfigFilePath', filePath);
   let i = 0;
   while (!fs.existsSync(filePath) && i < 5) {
     dir = path.resolve(dir, '..');
@@ -99,7 +98,9 @@ program
       if (!ok) return;
       else shell.exec('rm -rf ' + CONFIG_DIR_PATH);
     }
-    await shell.exec(`mkdir ${CONFIG_DIR_PATH} && touch ${CONFIG_FILE_PATH}`);
+    await shell.exec(
+      `mkdir ${CONFIG_DIR_PATH} && echo "{}" > ${CONFIG_FILE_PATH}`,
+    );
     const config: Partial<EmpressConfig> = {};
     const responses = await prompts({
       type: 'text',
@@ -153,6 +154,22 @@ program
   });
 
 program
+  .command('setRemotePath <remotePath>')
+  .description('Reset directory remote path')
+  .action(async remotePath => {
+    const dir = __dirname;
+    const configFilePath = getLocalConfigFilePath(dir);
+    if (configFilePath === null) {
+      console.log(
+        chalk.red('Directory not initalized. Run empress-hub init first'),
+      );
+      return;
+    }
+    const config: Partial<EmpressLocalConfig> = { remotePath };
+    setLocalConfig(configFilePath, config);
+  });
+
+program
   .command('add <file> [otherFiles...]')
   .description('Add files to be push')
   .action(async (file, otherFiles) => {
@@ -192,6 +209,16 @@ program
       console.log(chalk.red('No files added. Run empress-hub add firsts.'));
       return;
     }
+    let cmd = 'scp';
+    let dirPath = configFilePath.replace(LOCAL_CONFIG_FILE_NAME, '');
+    for (const file of filesToPush) {
+      cmd += ' ' + path.resolve(dirPath, file);
+    }
+    let remoteDirPath = globalConfig.sshHost + ':' + localConfig.remotePath;
+    cmd += ' ' + remoteDirPath;
+    console.log(cmd);
+    shell.exec(cmd);
+    // TODO handle push from subdirectory of initialied directory
   });
 
 program.parse(process.argv);
